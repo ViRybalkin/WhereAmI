@@ -1,7 +1,28 @@
-'use strict';
+// 'use strict';
 
 const btn = document.querySelector('.btn-country');
 const countriesContainer = document.querySelector('.countries');
+
+const whereAmI = function (lat, lng) {
+  fetch(
+    `https://geocode.xyz/${lat},${lng}?geoit=json&auth=181289708789022931241x34591`
+  )
+    .then(response => {
+      console.log(response);
+      if (!response.ok) throw new Error(` ${response.status}`);
+
+      return response.json();
+    })
+    .then(data => {
+      const { country } = data;
+      if (!country) return;
+      console.log(country);
+      getCountry(country);
+    })
+    .catch(function (err) {
+      console.error(err);
+    });
+};
 
 const renderCountry = country => {
   const html = `
@@ -40,45 +61,42 @@ const renderNeighbourhood = (country, className = '') => {
   countriesContainer.style.opacity = 1;
 };
 
-// const getCountry = function (country) {
-//   const xhr = new XMLHttpRequest();
-//   xhr.open('GET', `https://restcountries.eu/rest/v2/name/${country}`);
-//   xhr.send();
-//   xhr.addEventListener('load', () => {
-//     const [data] = JSON.parse(xhr.responseText);
-//     console.log(data);
-//     renderCountry(data);
-
-//     const [neighbours] = data.borders;
-//     const xhr2 = new XMLHttpRequest();
-//     xhr2.open('GET', `https://restcountries.eu/rest/v2/name/${neighbours}`);
-//     xhr2.send();
-//     xhr2.addEventListener('load', () => {
-//       const [data] = JSON.parse(xhr2.responseText);
-//       renderNeighbourhood(data, 'neighbour');
-//     });
-//   });
-// };
 const getCountry = function (country) {
   fetch(`https://restcountries.eu/rest/v2/name/${country}`)
-    .then(response => response.json())
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('lol');
+      }
+      return response.json();
+    })
     .then(data => {
       const [country] = data;
+      console.log(country);
       renderCountry(country);
       const [neighbour] = country.borders;
       if (!neighbour) return;
       fetch(`https://restcountries.eu/rest/v2/name/${neighbour}`)
-        .then(response => response.json())
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('lol');
+          }
+          return response.json();
+        })
         .then(data => {
           const [neighbour] = data;
           console.log(neighbour);
           renderNeighbourhood(neighbour, 'neighbour');
         });
     })
-    .then();
+    .then()
+    .catch(err => console.error(err));
 };
 
 btn.addEventListener('click', () => {
-  getCountry('russia');
+  if (!navigator.geolocation) return;
+  navigator.geolocation.getCurrentPosition(pos => {
+    const { latitude, longitude } = pos.coords;
+    whereAmI(latitude, longitude);
+  });
   btn.style.display = 'none';
 });
