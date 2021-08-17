@@ -40,26 +40,45 @@ const renderNeighbourhood = (country, className = '') => {
   countriesContainer.style.opacity = 1;
 };
 
-const getCountry = function (country) {
-  const xhr = new XMLHttpRequest();
-  xhr.open('GET', `https://restcountries.eu/rest/v2/name/${country}`);
-  xhr.send();
-  xhr.addEventListener('load', () => {
-    const [data] = JSON.parse(xhr.responseText);
-    console.log(data);
-    renderCountry(data);
+// const getCountry = function (country) {
+//   const xhr = new XMLHttpRequest();
+//   xhr.open('GET', `https://restcountries.eu/rest/v2/name/${country}`);
+//   xhr.send();
+//   xhr.addEventListener('load', () => {
+//     const [data] = JSON.parse(xhr.responseText);
+//     console.log(data);
+//     renderCountry(data);
 
-    const [neighbours] = data.borders;
-    const xhr2 = new XMLHttpRequest();
-    xhr2.open('GET', `https://restcountries.eu/rest/v2/name/${neighbours}`);
-    xhr2.send();
-    xhr2.addEventListener('load', () => {
-      const [data] = JSON.parse(xhr2.responseText);
-      renderNeighbourhood(data, 'neighbour');
-    });
-  });
+//     const [neighbours] = data.borders;
+//     const xhr2 = new XMLHttpRequest();
+//     xhr2.open('GET', `https://restcountries.eu/rest/v2/name/${neighbours}`);
+//     xhr2.send();
+//     xhr2.addEventListener('load', () => {
+//       const [data] = JSON.parse(xhr2.responseText);
+//       renderNeighbourhood(data, 'neighbour');
+//     });
+//   });
+// };
+const getCountry = function (country) {
+  fetch(`https://restcountries.eu/rest/v2/name/${country}`)
+    .then(response => response.json())
+    .then(data => {
+      const [country] = data;
+      renderCountry(country);
+      const [neighbour] = country.borders;
+      if (!neighbour) return;
+      fetch(`https://restcountries.eu/rest/v2/name/${neighbour}`)
+        .then(response => response.json())
+        .then(data => {
+          const [neighbour] = data;
+          console.log(neighbour);
+          renderNeighbourhood(neighbour, 'neighbour');
+        });
+    })
+    .then();
 };
 
 btn.addEventListener('click', () => {
   getCountry('russia');
+  btn.style.display = 'none';
 });
