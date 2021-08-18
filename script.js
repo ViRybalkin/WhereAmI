@@ -1,14 +1,16 @@
-// 'use strict';
+'use strict';
 
 const btn = document.querySelector('.btn-country');
+const btnInput = document.querySelector('.btn-input');
+const inputCountry = document.querySelector('.input-country');
 const countriesContainer = document.querySelector('.countries');
+const label = document.querySelector('.label');
 
 const whereAmI = function (lat, lng) {
   fetch(
     `https://geocode.xyz/${lat},${lng}?geoit=json&auth=181289708789022931241x34591`
   )
     .then(response => {
-      // console.log(response);
       if (!response.ok) throw new Error(` ${response.status}`);
 
       return response.json();
@@ -16,7 +18,6 @@ const whereAmI = function (lat, lng) {
     .then(data => {
       const { country } = data;
       if (!country) return;
-      // console.log(country);
       getCountry(country);
     })
     .catch(function (err) {
@@ -65,17 +66,15 @@ const getCountry = function (country) {
   fetch(`https://restcountries.eu/rest/v2/name/${country}`)
     .then(response => {
       if (!response.ok) {
-        throw new Error('lol');
+        throw new Error(`can't found country`);
       }
       return response.json();
     })
     .then(data => {
       const [country] = data;
-      // console.log(country);
       renderCountry(country);
       const neighbour = country.borders;
 
-      console.log(neighbour);
       neighbour.forEach(neighbour => {
         if (!neighbour) return;
         fetch(`https://restcountries.eu/rest/v2/alpha/${neighbour}`)
@@ -100,5 +99,18 @@ btn.addEventListener('click', () => {
     const { latitude, longitude } = pos.coords;
     whereAmI(latitude, longitude);
   });
+  label.style.display = 'none';
   btn.style.display = 'none';
+});
+
+inputCountry.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const countryName = inputCountry.value;
+    getCountry(countryName);
+    inputCountry.value = '';
+    label.style.display = 'none';
+    btn.style.display = 'none';
+    label.style.display = 'none';
+    btn.style.display = 'none';
+  }
 });

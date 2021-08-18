@@ -98,7 +98,7 @@ body {
   font-size: 2.4rem;
 }
 
-.btn-country {
+.btn {
   border: none;
   font-size: 2rem;
   padding: 2rem 5rem;
@@ -123,4 +123,23 @@ body {
   margin: 2rem;
   border: 3rem solid white;
   box-shadow: 0 2rem 5rem 1rem rgba(0, 0, 0, 0.1);
+}
+
+.label {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+.input-country {
+  border: 1px solid orangered;
+  font-size: 2rem;
+  padding: 2rem 1rem;
+  border-radius: 0.7rem;
+  margin-bottom: 5px;
+  outline: none;
+}
+
+.input-country::placeholder {
+  font-size: 1.5rem;
 }
