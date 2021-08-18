@@ -8,7 +8,7 @@ const whereAmI = function (lat, lng) {
     `https://geocode.xyz/${lat},${lng}?geoit=json&auth=181289708789022931241x34591`
   )
     .then(response => {
-      console.log(response);
+      // console.log(response);
       if (!response.ok) throw new Error(` ${response.status}`);
 
       return response.json();
@@ -16,7 +16,7 @@ const whereAmI = function (lat, lng) {
     .then(data => {
       const { country } = data;
       if (!country) return;
-      console.log(country);
+      // console.log(country);
       getCountry(country);
     })
     .catch(function (err) {
@@ -50,7 +50,7 @@ const renderNeighbourhood = (country, className = '') => {
       <h3 class="country__name">${country.name}</h3>
       <h4 class="country__region">${country.region}</h4>
       <p class="country__row"><span>👫</span>${(
-        +country.population / 1000000
+        +country.population / 100000
       ).toFixed(1)}M people</p>
       <p class="country__row"><span>🗣️</span>${country.languages[0].name}</p>
       <p class="country__row"><span>💰</span>${country.currencies[0].name}</p>
@@ -71,25 +71,27 @@ const getCountry = function (country) {
     })
     .then(data => {
       const [country] = data;
-      console.log(country);
+      // console.log(country);
       renderCountry(country);
-      const [neighbour] = country.borders;
-      if (!neighbour) return;
-      fetch(`https://restcountries.eu/rest/v2/name/${neighbour}`)
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('lol');
-          }
-          return response.json();
-        })
-        .then(data => {
-          const [neighbour] = data;
-          console.log(neighbour);
-          renderNeighbourhood(neighbour, 'neighbour');
-        });
-    })
-    .then()
-    .catch(err => console.error(err));
+      const neighbour = country.borders;
+
+      console.log(neighbour);
+      neighbour.forEach(neighbour => {
+        if (!neighbour) return;
+        fetch(`https://restcountries.eu/rest/v2/alpha/${neighbour}`)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error(`cant't find country ${neighbour}`);
+            }
+            return response.json();
+          })
+          .then(data => {
+            const neighbour = data;
+            renderNeighbourhood(neighbour, 'neighbour');
+          })
+          .catch(err => console.error(err));
+      });
+    });
 };
 
 btn.addEventListener('click', () => {
